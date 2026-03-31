@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +78,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 5️⃣ Controllers
 builder.Services.AddControllers();
 
+//Rate Limiting servisi
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: key => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,          // 1 dakikada max 10 istek
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429; // Too Many Requests
+        await context.HttpContext.Response.WriteAsync(
+            "Rate limit aşıldı. Lütfen biraz bekleyin.", token);
+    };
+});
 var app = builder.Build();
 
 // 6️⃣ Swagger middleware (sadece geliştirme ortamında)
@@ -92,11 +113,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 7️⃣ Authentication & Authorization
+//  Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+// Rate Limiting Middleware
+app.UseRateLimiter();
 app.UseMiddleware<ApiProject.Middleware.ExceptionMiddleware>();
-// 8️⃣ Controller rotaları
+// 8Controller rotaları
 app.MapControllers();
 
 app.Run();

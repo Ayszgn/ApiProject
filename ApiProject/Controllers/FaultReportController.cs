@@ -216,5 +216,12 @@ namespace ApiProject.Controllers
                 Message = "Status güncellendi"
             });
         }
+        // FaultReportController.cs içinde
+        [HttpGet("ratelimit-test")]
+        [AllowAnonymous] // login gerekmez
+        public IActionResult RateLimitTest()
+        {
+            return Ok("Rate Limiting testi başarılı!");
+        }
     }
 }
