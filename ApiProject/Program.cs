@@ -101,15 +101,14 @@ builder.Services.AddRateLimiter(options =>
 var app = builder.Build();
 
 // 6️⃣ Swagger middleware (sadece geliştirme ortamında)
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "FaultReport API v1");
         c.RoutePrefix = string.Empty; // Swagger ana sayfada açılır
     });
-}
+
 
 app.UseHttpsRedirection();
 

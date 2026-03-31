@@ -1,0 +1,24 @@
+﻿version: '3.9'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ApiDb;User=sa;Password=YourStrong@Passw0rd;
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "YourStrong@Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
