@@ -61,6 +61,8 @@ docker compose up --build
 * **Swagger / OpenAPI** — API dokümantasyonu ve test arayüzü
 * **ILogger (built-in) / Serilog** — Loglama ve hata takibi
 * **Docker & Docker Compose** — Opsiyonel tek komutla çalıştırma
+* **xUnit / NUnit** — Unit testler için
+* **AspNetCore Rate Limiting / Middleware** — IP bazlı istek sınırlandırma
 
 ### Kütüphaneler / NuGet Paketleri
 
